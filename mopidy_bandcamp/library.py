@@ -432,8 +432,17 @@ class BandcampLibraryProvider(LibraryProvider):
         artists: set[Artist] = set()
         resp: dict[str, Any] = {}
         try:
-            flattened_query = "+".join(map(quote, [str(v) for v in query.values()]))
-            resp = self.bandcamp.search(flattened_query)
+            if "uri" in query.keys():
+                resp = self.lookup(query['uri'][0])
+                return SearchResult(
+                    uri=Uri("bandcamp:search"),
+                    tracks=resp,
+                    albums=list(),
+                    artists=list()
+                )
+            else:
+                flattened_query = "+".join(map(quote, [str(v) for v in query.values()]))
+                resp = self.bandcamp.search(flattened_query)
         except Exception:
             logger.exception("Bandcamp failed to search.")
         if "results" in resp:

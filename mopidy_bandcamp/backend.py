@@ -60,18 +60,19 @@ class BandcampPlaybackProvider(PlaybackProvider):
                     logger.debug("Bandcamp found url in track scrape url cache")
                     url = self.library.scrape_urls[uri]
                 else:
-                    track = self.library.tracks.get(p)
+                    trackobj = self.library.tracks.get(p)
                     if (
-                            track is not None
-                            and track.comment is not None
-                            and track.comment.startswith("URL: ")
+                            trackobj is not None
+                            and trackobj.comment is not None
+                            and trackobj.comment.startswith("URL: ")
                     ):
                         logger.debug("Bandcamp found url in track comment")
-                        url = track.comment.split(": ")[1]
+                        url = trackobj.comment.split(": ")[1]
                     else:
-                        logger.debug("Bandcamp fetching url from web")
-                        resp = self.bandcamp.get_track(artist, p)
+                        logger.debug(f"Bandcamp fetching url from web {artist}, {track}")
+                        resp = self.bandcamp.get_track(artist, track)
                         url = resp["bandcamp_url"]
+                        logger.debug(f"Bandcamp got url {url}")
                 resp = self.bandcamp.scrape(url)
                 for tr in resp["tracks"]:
                     if str(tr["id"]) == track:
